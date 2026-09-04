@@ -17,12 +17,6 @@ Common transformer shapes:
 - Attention scores: $(B, H, T, T)$
 - Weights: $(C_{\mathrm{in}}, C_{\mathrm{out}})$
 
-Elementwise ops broadcast like NumPy:
-
-$$
-c = a + b, \qquad \frac{\partial L}{\partial a} = \frac{\partial L}{\partial c}, \qquad \frac{\partial L}{\partial b} = \frac{\partial L}{\partial c}
-$$
-
 ---
 
 ## **The `Tensor` Class**
@@ -81,6 +75,7 @@ Also available:
 
 - `detach()` — copy values without gradient tracking
 - `shape()`, `ndim()`, `size()` — shape helpers
+- `T()` — transpose for matrices
 - `zeroGrad()` — zero the `.grad` buffer
 - `representation()` — debug string
 
@@ -174,7 +169,7 @@ public static double norm(double[] values)
 
 ## **Arithmetic**
 
-Elementwise ops broadcast like NumPy. `binary()` handles broadcasting and wires local `gradientFunction` closures on the output tensor.
+Elementwise ops broadcast like NumPy. `matmul` covers 2D, batched 3D, and 4D attention shapes.
 
 ```java
 public Tensor add(Tensor other)
@@ -182,10 +177,12 @@ public Tensor subtract(Tensor other)
 public Tensor multiply(Tensor other)
 public Tensor divide(Tensor other)
 public Tensor power(double exponent)
-public Tensor negate()
+public Tensor matmul(Tensor other)
+public Tensor permute(int... axes)
+public Tensor reshape(int... newShape)
+public Tensor sum(Integer axis, boolean keepdims)
+public Tensor mean(int axis, boolean keepdims)
 ```
-
-Reverse mode for these ops is covered in [Autograd.md](Autograd.md).
 
 ---
 
@@ -194,17 +191,8 @@ Reverse mode for these ops is covered in [Autograd.md](Autograd.md).
 ```java
 Tensor a = new Tensor(new double[] {2.0, 3.0}, true);
 Tensor b = new Tensor(new double[] {4.0, 5.0}, true);
-Tensor output = a.multiply(b).add(a);
-output.backward(new double[] {1.0, 1.0});
+Tensor loss = a.multiply(b).add(a).sum();
+loss.backward();
 ```
 
 `a.grad` should be `{5, 6}` and `b.grad` should be `{2, 3}`.
-
-```java
-Tensor left = new Tensor(new double[][] {{1.0, 2.0}, {3.0, 4.0}}, true);
-Tensor right = new Tensor(new double[] {10.0, 20.0}, true);
-Tensor broadcastOutput = left.add(right);
-broadcastOutput.backward(new double[] {1.0, 1.0, 1.0, 1.0});
-```
-
-`left.grad` is all ones and `right.grad` is `{2, 2}`.
