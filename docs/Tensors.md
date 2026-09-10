@@ -182,6 +182,13 @@ public Tensor permute(int... axes)
 public Tensor reshape(int... newShape)
 public Tensor sum(Integer axis, boolean keepdims)
 public Tensor mean(int axis, boolean keepdims)
+public Tensor relu()
+public Tensor sigmoid()
+public Tensor tanh()
+public Tensor gelu()
+public Tensor softmax(int axis)
+public Tensor gatherClass(int[] targetIndex)
+public Tensor embeddingLookup(int[][] tokens)
 ```
 
 ---
@@ -196,3 +203,18 @@ loss.backward();
 ```
 
 `a.grad` should be `{5, 6}` and `b.grad` should be `{2, 3}`.
+
+```java
+Tensor inputTensor = new Tensor(new double[] {-1.0, 0.0, 2.0}, true);
+Tensor reluLoss = inputTensor.relu().power(2).sum();
+reluLoss.backward();
+```
+
+`inputTensor.grad` is `{0, 0, 4}`.
+
+```java
+Tensor logits = new Tensor(new double[][] {{1.0, 2.0, 3.0}, {0.1, -0.2, 0.3}}, true);
+Tensor probabilities = logits.softmax(1);
+```
+
+Each row of `probabilities.data` sums to $1$.

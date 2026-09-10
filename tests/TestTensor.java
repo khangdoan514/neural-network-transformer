@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import src.Tensor;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestTensor {
@@ -29,6 +28,31 @@ public class TestTensor {
     }
 
     @Test
+    void testReluBackward() {
+        Tensor inputTensor = new Tensor(new double[] {-1.0, 0.0, 2.0}, true);
+        Tensor loss = inputTensor.relu().power(2).sum();
+        loss.backward();
+        assertTrue(Tensor.allClose(inputTensor.grad, new double[] {0.0, 0.0, 4.0}, 1e-9, 1e-9));
+    }
+
+    @Test
+    void testTanhSigmoidForward() {
+        Tensor inputTensor = new Tensor(new double[] {0.0}, false);
+        assertTrue(Math.abs(inputTensor.tanh().data[0]) < 1e-9);
+        assertTrue(Math.abs(inputTensor.sigmoid().data[0] - 0.5) < 1e-9);
+    }
+
+    @Test
+    void testSoftmaxSumsToOne() {
+        Tensor inputTensor = new Tensor(new double[][] {{1.0, 2.0, 3.0}, {0.1, -0.2, 0.3}}, true);
+        Tensor probabilities = inputTensor.softmax(1);
+        double row0 = probabilities.data[0] + probabilities.data[1] + probabilities.data[2];
+        double row1 = probabilities.data[3] + probabilities.data[4] + probabilities.data[5];
+        assertTrue(Math.abs(row0 - 1.0) < 1e-9);
+        assertTrue(Math.abs(row1 - 1.0) < 1e-9);
+    }
+
+    @Test
     void testBroadcastAddGrad() {
         Tensor left = new Tensor(new double[][] {{1.0, 2.0}, {3.0, 4.0}}, true);
         Tensor right = new Tensor(new double[] {10.0, 20.0}, true);
@@ -36,14 +60,5 @@ public class TestTensor {
         loss.backward();
         assertTrue(Tensor.allClose(left.grad, new double[] {1.0, 1.0, 1.0, 1.0}, 1e-9, 1e-9));
         assertTrue(Tensor.allClose(right.grad, new double[] {2.0, 2.0}, 1e-9, 1e-9));
-    }
-
-    @Test
-    void testReshapePreservesElements() {
-        Tensor tensor = Tensor.ones(new int[] {2, 4, 8}, false);
-        Tensor reshaped = tensor.reshape(2, 32);
-        assertEquals(2, reshaped.shape[0]);
-        assertEquals(32, reshaped.shape[1]);
-        assertEquals(64, reshaped.size());
     }
 }

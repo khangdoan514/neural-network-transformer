@@ -371,6 +371,247 @@ public final class Tensor {
         return out;
     }
 
+    public Tensor relu() {
+        double[] outData = new double[data.length];
+        for (int index = 0; index < data.length; index++) {
+            outData[index] = Math.max(data[index], 0.0);
+        }
+
+        Tensor out = new Tensor(outData, shape, requiresGrad, new Tensor[] {this}, "relu");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (self.requiresGrad) {
+                for (int index = 0; index < self.data.length; index++) {
+                    self.grad[index] += out.grad[index] * (self.data[index] > 0.0 ? 1.0 : 0.0);
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor tanh() {
+        double[] values = new double[data.length];
+        for (int index = 0; index < data.length; index++) {
+            values[index] = Math.tanh(data[index]);
+        }
+
+        Tensor out = new Tensor(values, shape, requiresGrad, new Tensor[] {this}, "tanh");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (self.requiresGrad) {
+                for (int index = 0; index < self.data.length; index++) {
+                    self.grad[index] += out.grad[index] * (1.0 - values[index] * values[index]);
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor gelu() {
+        double coefficient = Math.sqrt(2.0 / Math.PI);
+        double[] values = new double[data.length];
+        for (int index = 0; index < data.length; index++) {
+            double x = data[index];
+            values[index] = 0.5 * x * (1.0 + Math.tanh(coefficient * (x + 0.044715 * x * x * x)));
+        }
+
+        Tensor out = new Tensor(values, shape, requiresGrad, new Tensor[] {this}, "gelu");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (self.requiresGrad) {
+                for (int index = 0; index < self.data.length; index++) {
+                    double x = self.data[index];
+                    double inner = coefficient * (x + 0.044715 * x * x * x);
+                    double tanhInner = Math.tanh(inner);
+                    double sech2 = 1.0 - tanhInner * tanhInner;
+                    double dInner = coefficient * (1.0 + 3.0 * 0.044715 * x * x);
+                    self.grad[index] += out.grad[index] * (0.5 * (1.0 + tanhInner) + 0.5 * x * sech2 * dInner);
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor sigmoid() {
+        double[] values = new double[data.length];
+        for (int index = 0; index < data.length; index++) {
+            values[index] = 1.0 / (1.0 + Math.exp(-data[index]));
+        }
+
+        Tensor out = new Tensor(values, shape, requiresGrad, new Tensor[] {this}, "sigmoid");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (self.requiresGrad) {
+                for (int index = 0; index < self.data.length; index++) {
+                    self.grad[index] += out.grad[index] * values[index] * (1.0 - values[index]);
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor exp() {
+        double[] values = new double[data.length];
+        for (int index = 0; index < data.length; index++) {
+            values[index] = Math.exp(data[index]);
+        }
+
+        Tensor out = new Tensor(values, shape, requiresGrad, new Tensor[] {this}, "exp");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (self.requiresGrad) {
+                for (int index = 0; index < self.data.length; index++) {
+                    self.grad[index] += out.grad[index] * values[index];
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor log() {
+        double[] values = new double[data.length];
+        for (int index = 0; index < data.length; index++) {
+            values[index] = Math.log(data[index]);
+        }
+
+        Tensor out = new Tensor(values, shape, requiresGrad, new Tensor[] {this}, "log");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (self.requiresGrad) {
+                for (int index = 0; index < self.data.length; index++) {
+                    self.grad[index] += out.grad[index] / self.data[index];
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor softmax(int axis) {
+        int resolved = axis < 0 ? ndim() + axis : axis;
+        Tensor maximum = max(resolved, true);
+        Tensor shifted = subtract(maximum);
+        Tensor ex = shifted.exp();
+        Tensor denom = ex.sum(resolved, true);
+        return ex.divide(denom);
+    }
+
+    public Tensor max(int axis, boolean keepdims) {
+        int resolved = axis < 0 ? ndim() + axis : axis;
+        int[] newShape = keepdims ? Arrays.copyOf(shape, shape.length) : removeAxis(shape, resolved);
+        if (keepdims) {
+            newShape[resolved] = 1;
+        }
+
+        double[] outData = new double[product(newShape)];
+        Arrays.fill(outData, Double.NEGATIVE_INFINITY);
+        int[] inStrides = strides(shape);
+        int[] outStrides = strides(newShape);
+        for (int flat = 0; flat < data.length; flat++) {
+            int[] coords = unravel(flat, shape, inStrides);
+            int[] reduced = keepdims ? Arrays.copyOf(coords, coords.length) : removeAxis(coords, resolved);
+            if (keepdims) {
+                reduced[resolved] = 0;
+            }
+
+            int outIndex = ravel(reduced, outStrides);
+            outData[outIndex] = Math.max(outData[outIndex], data[flat]);
+        }
+
+        Tensor out = new Tensor(outData, newShape, requiresGrad, new Tensor[] {this}, "max");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (!self.requiresGrad) {
+                return;
+            }
+
+            for (int flat = 0; flat < self.data.length; flat++) {
+                int[] coords = unravel(flat, self.shape, inStrides);
+                int[] reduced = keepdims ? Arrays.copyOf(coords, coords.length) : removeAxis(coords, resolved);
+                if (keepdims) {
+                    reduced[resolved] = 0;
+                }
+
+                int outIndex = ravel(reduced, outStrides);
+                if (self.data[flat] == out.data[outIndex]) {
+                    self.grad[flat] += out.grad[outIndex];
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor gatherClass(int[] targetIndex) {
+        if (ndim() != 2) {
+            throw new IllegalArgumentException("gatherClass expects logits of shape (N, C)");
+        }
+
+        int rows = shape[0];
+        int columns = shape[1];
+        double[] outData = new double[rows];
+        for (int row = 0; row < rows; row++) {
+            outData[row] = data[row * columns + targetIndex[row]];
+        }
+
+        Tensor out = new Tensor(outData, new int[] {rows}, requiresGrad, new Tensor[] {this}, "gather");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (self.requiresGrad) {
+                for (int row = 0; row < rows; row++) {
+                    self.grad[row * columns + targetIndex[row]] += out.grad[row];
+                }
+            }
+        };
+
+        return out;
+    }
+
+    public Tensor embeddingLookup(int[][] tokens) {
+        if (ndim() != 2) {
+            throw new IllegalArgumentException("embedding table must be (V, C)");
+        }
+
+        int batch = tokens.length;
+        int sequence = tokens[0].length;
+        int channels = shape[1];
+        double[] outData = new double[batch * sequence * channels];
+        for (int batchIndex = 0; batchIndex < batch; batchIndex++) {
+            for (int time = 0; time < sequence; time++) {
+                int token = tokens[batchIndex][time];
+                int source = token * channels;
+                int destination = (batchIndex * sequence + time) * channels;
+                System.arraycopy(data, source, outData, destination, channels);
+            }
+        }
+
+        Tensor out = new Tensor(outData, new int[] {batch, sequence, channels}, requiresGrad, new Tensor[] {this}, "embedding");
+        Tensor self = this;
+        out.gradientFunction = () -> {
+            if (!self.requiresGrad) {
+                return;
+            }
+
+            for (int batchIndex = 0; batchIndex < batch; batchIndex++) {
+                for (int time = 0; time < sequence; time++) {
+                    int token = tokens[batchIndex][time];
+                    int source = token * channels;
+                    int destination = (batchIndex * sequence + time) * channels;
+                    for (int channel = 0; channel < channels; channel++) {
+                        self.grad[source + channel] += out.grad[destination + channel];
+                    }
+                }
+            }
+        };
+
+        return out;
+    }
+
     public String representation() {
         String gradInfo = requiresGrad ? ", requiresGrad=" + requiresGrad : "";
         String operationInfo = operation.isEmpty() ? "" : ", operation=" + operation;
