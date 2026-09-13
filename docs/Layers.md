@@ -84,7 +84,9 @@ public class Linear extends Module {
 
 ```java
 Linear layer = new Linear(4, 3);
-Tensor y = layer.forward(Tensor.ones(new int[] {2, 4}, false));
+ReLU relu = new ReLU();
+Tensor hidden = layer.forward(Tensor.ones(new int[] {2, 4}, false));
+Tensor y = relu.forward(hidden);
 ```
 
-`y.shape` is `{2, 3}` and `layer.parameters().size()` is `2`.
+`hidden.shape` is `{2, 3}` and `layer.parameters().size()` is `2`. `y` is the same shape with negative values clipped to zero.
