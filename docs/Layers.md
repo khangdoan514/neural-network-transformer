@@ -84,9 +84,9 @@ public class Linear extends Module {
 
 ```java
 Linear layer = new Linear(4, 3);
-Tanh tanh = new Tanh();
+Softmax softmax = new Softmax(1);
 Tensor hidden = layer.forward(Tensor.ones(new int[] {2, 4}, false));
-Tensor y = tanh.forward(hidden);
+Tensor y = softmax.forward(hidden);
 ```
 
-`hidden.shape` is `{2, 3}` and `layer.parameters().size()` is `2`. `y` is the same shape, squashed into $(-1, 1)$.
+`hidden.shape` is `{2, 3}` and `layer.parameters().size()` is `2`. Each row of `y` sums to $1$.

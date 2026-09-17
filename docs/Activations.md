@@ -1,8 +1,8 @@
 # **Activations**
 
-Elementwise nonlinearities. Each module delegates to the matching `Tensor` op.
+Elementwise nonlinearities and softmax over a chosen axis. Each module delegates to the matching `Tensor` op.
 
-> *`src/ReLU.java` · `src/Tanh.java` · `src/Sigmoid.java`*
+> *`src/ReLU.java` · `src/Tanh.java` · `src/Sigmoid.java` · `src/Softmax.java`*
 
 ---
 
@@ -20,7 +20,11 @@ $$
 \tanh x = \frac{e^{x} - e^{-x}}{e^{x} + e^{-x}}
 $$
 
-The ReLU subgradient at zero is taken to be zero. Sigmoid squashes to $(0, 1)$. Tanh squashes to $(-1, 1)$.
+$$
+\mathrm{softmax}(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}}
+$$
+
+Softmax subtracts a max for stability, then `exp` / `sum`.
 
 ---
 
@@ -35,17 +39,32 @@ public class ReLU extends Module {
 }
 ```
 
-`Tanh` and `Sigmoid` are the same forward method onto `input.tanh()` and `input.sigmoid()`.
+```java
+public class Softmax extends Module {
+    public int axis;
+
+    public Softmax() {
+        this(-1);
+    }
+
+    public Softmax(int axis) {
+        this.axis = axis;
+    }
+
+    @Override
+    public Tensor forward(Tensor input) {
+        return input.softmax(axis);
+    }
+}
+```
 
 ---
 
 ## **Check**
 
 ```java
-Tanh tanh = new Tanh();
-Sigmoid sigmoid = new Sigmoid();
-Tensor centered = tanh.forward(new Tensor(new double[] {-2, 0, 2}, false));
-Tensor probability = sigmoid.forward(new Tensor(new double[] {0}, false));
+Tensor logits = new Tensor(new double[][] {{1.0, 2.0, 3.0}, {0.1, -0.2, 0.3}}, true);
+Tensor probabilities = new Softmax(1).forward(logits);
 ```
 
-`centered` is odd around zero. `probability.data[0]` is `0.5`.
+Each row of `probabilities.data` sums to $1$.
