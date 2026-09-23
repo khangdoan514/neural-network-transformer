@@ -2,7 +2,7 @@
 
 Elementwise nonlinearities and softmax over a chosen axis. Each module delegates to the matching `Tensor` op.
 
-> *`src/ReLU.java` · `src/Tanh.java` · `src/Sigmoid.java` · `src/Softmax.java`*
+> *`src/ReLU.java` · `src/Tanh.java` · `src/Sigmoid.java` · `src/GELU.java` · `src/Softmax.java`*
 
 ---
 
@@ -21,10 +21,14 @@ $$
 $$
 
 $$
+\mathrm{GELU}(x) = x \cdot \Phi(x)
+$$
+
+$$
 \mathrm{softmax}(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}}
 $$
 
-Softmax subtracts a max for stability, then `exp` / `sum`.
+GELU uses the Gaussian CDF. Softmax subtracts a max for stability, then `exp` / `sum`.
 
 ---
 
@@ -35,6 +39,15 @@ public class ReLU extends Module {
     @Override
     public Tensor forward(Tensor input) {
         return input.relu();
+    }
+}
+```
+
+```java
+public class GELU extends Module {
+    @Override
+    public Tensor forward(Tensor input) {
+        return input.gelu();
     }
 }
 ```
@@ -63,8 +76,8 @@ public class Softmax extends Module {
 ## **Check**
 
 ```java
-Tensor logits = new Tensor(new double[][] {{1.0, 2.0, 3.0}, {0.1, -0.2, 0.3}}, true);
-Tensor probabilities = new Softmax(1).forward(logits);
+GELU gelu = new GELU();
+Tensor y = gelu.forward(new Tensor(new double[] {-1.0, 0.0, 1.0}, false));
 ```
 
-Each row of `probabilities.data` sums to $1$.
+`y.data[1]` is `0`. Positive inputs stay positive. Negative inputs shrink toward zero.

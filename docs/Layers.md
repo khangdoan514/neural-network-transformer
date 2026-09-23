@@ -84,9 +84,9 @@ public class Linear extends Module {
 
 ```java
 Linear layer = new Linear(4, 3);
-Softmax softmax = new Softmax(1);
+GELU gelu = new GELU();
 Tensor hidden = layer.forward(Tensor.ones(new int[] {2, 4}, false));
-Tensor y = softmax.forward(hidden);
+Tensor y = gelu.forward(hidden);
 ```
 
-`hidden.shape` is `{2, 3}` and `layer.parameters().size()` is `2`. Each row of `y` sums to $1$.
+`hidden.shape` is `{2, 3}` and `layer.parameters().size()` is `2`. `y` is the same shape after the Gaussian CDF gate.
