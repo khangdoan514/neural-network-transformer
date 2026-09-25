@@ -83,10 +83,10 @@ public class Linear extends Module {
 ## **Check**
 
 ```java
-Linear layer = new Linear(4, 3);
-GELU gelu = new GELU();
-Tensor hidden = layer.forward(Tensor.ones(new int[] {2, 4}, false));
-Tensor y = gelu.forward(hidden);
+Linear layer = new Linear(4, 1);
+Tensor logits = layer.forward(Tensor.ones(new int[] {2, 4}, true));
+Tensor bce = new BCEWithLogitsLoss().forward(logits, new double[][] {{1.0}, {0.0}});
+bce.backward();
 ```
 
-`hidden.shape` is `{2, 3}` and `layer.parameters().size()` is `2`. `y` is the same shape after the Gaussian CDF gate.
+`logits.shape` is `{2, 1}` and `bce` is a scalar. `layer.parameters()` carry gradients after `backward()`.
