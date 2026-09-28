@@ -2,7 +2,7 @@
 
 Scalar objectives $L(\hat y, y)$ that turn network outputs into something you can call `.backward()` on. Each loss is a `Module` whose `forward` returns a scalar `Tensor`.
 
-> *`src/MSELoss.java` · `src/BCEWithLogitsLoss.java`*
+> *`src/MSELoss.java` · `src/BCEWithLogitsLoss.java` · `src/CrossEntropyLoss.java`*
 
 ---
 
@@ -21,6 +21,16 @@ For logits $z$ and targets $y \in \{0,1\}$:
 $$
 L = \frac{1}{N}\sum_i \Big(\max(z_i,0) - z_i y_i + \log(1 + e^{-|z_i|})\Big)
 $$
+
+**Cross entropy** (multi-class, from logits)
+
+For logits $z \in \mathbb{R}^{N \times C}$ and class indices $c_i$:
+
+$$
+L = -\frac{1}{N}\sum_i \log \mathrm{softmax}(z_i)_{c_i}
+$$
+
+Using log-sum-exp avoids an explicit `Softmax` layer and stays numerically stable. For language modeling, $(B, T, V)$ logits flatten to $(BT, V)$ before gathering the true token.
 
 ---
 
@@ -69,14 +79,41 @@ Explanation:
 
 ---
 
+## **`CrossEntropyLoss`**
+
+Multi-class cross entropy from logits. `logits` has shape $(N, C)$ or $(B, T, V)$; `targetIndex` has integer class labels.
+
+```java
+public Tensor forward(Tensor logits, int[] targetIndex) {
+    Tensor flatLogits = logits;
+    if (logits.ndim() == 3) {
+        flatLogits = logits.reshape(logits.shape[0] * logits.shape[1], logits.shape[2]);
+    }
+
+    Tensor maximum = flatLogits.max(1, true);
+    Tensor shifted = flatLogits.subtract(maximum);
+    Tensor logSumExp = shifted.exp().sum(1, true).log();
+    Tensor logProbabilities = shifted.subtract(logSumExp);
+    Tensor chosen = logProbabilities.gatherClass(targetIndex);
+
+    return chosen.mean().negate();
+}
+```
+
+Explanation:
+
+1. Subtract the row max before `exp` / `log` (log-sum-exp trick).
+2. `gatherClass` picks the log probability of the true class.
+3. Mean over the batch (and time), then negate.
+
+---
+
 ## **Check**
 
 ```java
-Tensor prediction = new Tensor(new double[][] {{0.5}, {-0.2}}, true);
-Tensor mse = new MSELoss().forward(prediction, new double[][] {{1.0}, {0.0}});
-
-Tensor logits = new Tensor(new double[][] {{0.2}, {-0.5}, {1.0}}, true);
-Gradcheck.Result bceResult = Gradcheck.checkTensorGradient(tensor -> new BCEWithLogitsLoss().forward(tensor, new double[][] {{1.0}, {0.0}, {1.0}}), logits);
+Tensor classLogits = new Tensor(new double[][] {{0.1, 0.2, 0.3}, {0.5, -0.1, 0.0}}, true);
+Tensor crossEntropy = new CrossEntropyLoss().forward(classLogits, new int[] {2, 0});
+crossEntropy.backward();
 ```
 
-`mse` is a scalar. `bceResult.passed` should be true.
+`crossEntropy` is a scalar. `classLogits.grad` is populated after `backward()`.

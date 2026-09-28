@@ -83,10 +83,11 @@ public class Linear extends Module {
 ## **Check**
 
 ```java
-Linear layer = new Linear(4, 1);
+Linear layer = new Linear(4, 3);
 Tensor logits = layer.forward(Tensor.ones(new int[] {2, 4}, true));
-Tensor bce = new BCEWithLogitsLoss().forward(logits, new double[][] {{1.0}, {0.0}});
-bce.backward();
+Tensor crossEntropy = new CrossEntropyLoss().forward(logits, new int[] {2, 0});
+crossEntropy.backward();
+new SGD(layer.parameters(), 0.1).step();
 ```
 
-`logits.shape` is `{2, 1}` and `bce` is a scalar. `layer.parameters()` carry gradients after `backward()`.
+`logits.shape` is `{2, 3}`. After `step()`, the layer weights move.
