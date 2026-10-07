@@ -87,7 +87,7 @@ Linear layer = new Linear(4, 3);
 Tensor logits = layer.forward(Tensor.ones(new int[] {2, 4}, true));
 Tensor crossEntropy = new CrossEntropyLoss().forward(logits, new int[] {2, 0});
 crossEntropy.backward();
-new SGD(layer.parameters(), 0.1).step();
+new Adam(layer.parameters(), 0.1).step();
 ```
 
 `logits.shape` is `{2, 3}`. After `step()`, the layer weights move.
