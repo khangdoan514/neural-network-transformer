@@ -83,11 +83,12 @@ public class Linear extends Module {
 ## **Check**
 
 ```java
-Linear layer = new Linear(4, 3);
-Tensor logits = layer.forward(Tensor.ones(new int[] {2, 4}, true));
-Tensor crossEntropy = new CrossEntropyLoss().forward(logits, new int[] {2, 0});
-crossEntropy.backward();
-new Adam(layer.parameters(), 0.1).step();
+MultiHeadAttention attention = new MultiHeadAttention(8, 4, new Random(0));
+Tensor hidden = Tensor.ones(new int[] {2, 4, 8}, true);
+Tensor mixed = attention.forward(hidden);
+Tensor loss = mixed.mean();
+loss.backward();
+new Adam(attention.parameters(), 0.1).step();
 ```
 
-`logits.shape` is `{2, 3}`. After `step()`, the layer weights move.
+`mixed.shape` is `{8, 8}`. After `step()`, the projection weights move.
