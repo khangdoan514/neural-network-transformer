@@ -1,4 +1,4 @@
-# **Neural Network Transformer**
+# **Transformer Neural Network**
 
 **Transformer** implemented from scratch with **Java** only. The project covers tensors, reverse mode autograd, backpropagation, linear layers, embeddings, layer norm, activations (ReLU, Tanh, Sigmoid, GELU, Softmax), multi head attention, transformer blocks, losses (MSE, BCE with logits, Cross Entropy), optimizers (SGD with momentum, Adam), minibatch training, finite difference gradient checks, and demos on copy, shift, and tiny text. No ND4J, DJL, PyTorch, TensorFlow, or JAX.
 
@@ -45,7 +45,7 @@ Causal mask $M_{ij} = 0$ if $j \le i$, else $-\infty$, so token $i$ cannot atten
 ### **5. Multi head attention**
 
 $$
-\mathrm{MHA}(x) = \mathrm{Concat}(\mathrm{head}_1,\ldots,\mathrm{head}_h)W^O
+\mathrm{MultiHeadAttention}(x) = \mathrm{Concat}(\mathrm{head}_1,\ldots,\mathrm{head}_h)W^O
 $$
 
 $$
@@ -57,15 +57,15 @@ $$
 Pre-norm residual block:
 
 $$
-h = x + \mathrm{MHA}(\mathrm{LN}(x))
+h = x + \mathrm{MultiHeadAttention}(\mathrm{LayerNorm}(x))
 $$
 
 $$
-y = h + \mathrm{FFN}(\mathrm{LN}(h))
+y = h + \mathrm{FeedForward}(\mathrm{LayerNorm}(h))
 $$
 
 $$
-\mathrm{FFN}(z) = W_2\,\mathrm{GELU}(W_1 z + b_1) + b_2
+\mathrm{FeedForward}(z) = W_2\,\mathrm{GELU}(W_1 z + b_1) + b_2
 $$
 
 ### **7. Activations**
@@ -122,7 +122,7 @@ $$
 
 | Step | Topic | Code | Guide |
 |------|-------|------|-------|
-| 01 | Tensors and ops | `src/Tensor.java` | [docs/Tensors.md](docs/Tensors.md) |
+| 01 | Tensors and operations | `src/Tensor.java` | [docs/Tensors.md](docs/Tensors.md) |
 | 02 | Autograd / chain rule | `src/Tensor.java` (`backward`) | [docs/Autograd.md](docs/Autograd.md) |
 | 03 | Gradient checking | `src/Gradcheck.java` | [docs/Gradcheck.md](docs/Gradcheck.md) |
 | 04 | Modules, `Linear`, Embedding, LayerNorm | `src/Module.java` · `src/Linear.java` · `src/Embedding.java` · `src/LayerNorm.java` | [docs/Layers.md](docs/Layers.md) |

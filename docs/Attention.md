@@ -15,7 +15,7 @@ $$
 $Q, K, V$ come from linear maps of the same input $x$. Heads split the channel axis, attend independently, then concatenate:
 
 $$
-\mathrm{MHA}(x) = \mathrm{Concat}(\mathrm{head}_1,\ldots,\mathrm{head}_h)W^O
+\mathrm{MultiHeadAttention}(x) = \mathrm{Concat}(\mathrm{head}_1,\ldots,\mathrm{head}_h)W^O
 $$
 
 Causal mask: $M_{ij} = 0$ if $j \le i$, else a large negative number so softmax mass on the future is $\approx 0$.

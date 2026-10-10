@@ -79,7 +79,7 @@ Explanation:
 
 ---
 
-## **`SGD`**
+## **The `SGD` Class**
 
 Plain SGD, or SGD with momentum when `momentum > 0`.
 
@@ -116,7 +116,7 @@ public void step() {
 
 ---
 
-## **`Adam`**
+## **The `Adam` Class**
 
 Adaptive moments with bias correction.
 

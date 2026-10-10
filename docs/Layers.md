@@ -40,6 +40,8 @@ $$
 | `forward()` | Define the forward pass |
 | `apply()` | Calls `forward()` |
 
+### **`parameters()`**
+
 ```java
 public List<Tensor> parameters() {
     List<Tensor> parameters = new ArrayList<>();
@@ -73,8 +75,46 @@ public class Linear extends Module {
         if (bias != null) {
             output = output.add(bias);
         }
+
         return output;
     }
+}
+```
+
+---
+
+## **The `Embedding` Class**
+
+```java
+public class Embedding extends Module {
+    public Tensor weight;
+
+    public Embedding(int vocabularySize, int channels, Random randomGenerator) {
+        this.weight = Tensor.randn(new int[] {vocabularySize, channels}, true, randomGenerator);
+        for (int index = 0; index < weight.data.length; index++) {
+            weight.data[index] *= 0.02;
+        }
+    }
+
+    public Tensor forward(int[][] tokens) {
+        return weight.embeddingLookup(tokens);
+    }
+}
+```
+
+---
+
+## **The `LayerNorm` Class**
+
+```java
+@Override
+public Tensor forward(Tensor input) {
+    Tensor mean = input.mean(-1, true);
+    Tensor centered = input.subtract(mean);
+    Tensor variance = centered.power(2).mean(-1, true);
+    Tensor normalized = centered.divide(variance.add(epsilon).power(0.5));
+
+    return normalized.multiply(gain).add(bias);
 }
 ```
 
@@ -83,12 +123,12 @@ public class Linear extends Module {
 ## **Check**
 
 ```java
-FeedForward feedForward = new FeedForward(8, new Random(0));
+TransformerBlock block = new TransformerBlock(8, 4, new Random(0));
 Tensor hidden = Tensor.ones(new int[] {2, 4, 8}, true);
-Tensor output = feedForward.forward(hidden);
+Tensor output = block.forward(hidden);
 Tensor loss = output.mean();
 loss.backward();
-new Adam(feedForward.parameters(), 0.1).step();
+new Adam(block.parameters(), 0.1).step();
 ```
 
-`output.shape` is `{2, 4, 8}`. After `step()`, the expand and project weights move.
+`output.shape` is `{2, 4, 8}`. After `step()`, the block weights move.

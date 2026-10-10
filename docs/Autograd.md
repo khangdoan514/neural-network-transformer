@@ -1,6 +1,6 @@
 # **Autograd**
 
-Reverse mode automatic differentiation: build a graph on the forward pass, then push gradients backward with the chain rule. Each op stores a local `gradientFunction` on its output; `backward()` walks the graph in reverse and runs those rules.
+Reverse mode automatic differentiation: build a graph on the forward pass, then push gradients backward with the chain rule. Each operation stores a local `gradientFunction` on its output; `backward()` walks the graph in reverse and runs those rules.
 
 > *`src/Tensor.java`*
 
@@ -16,13 +16,13 @@ $$
 
 Reverse mode:
 
-1. Forward: evaluate ops and record parents on each output tensor.
+1. Forward: evaluate operations and record parents on each output tensor.
 2. Seed $\frac{\partial L}{\partial L} = 1$ at the scalar loss.
 3. Walk the graph backward; each node applies its local rule and accumulates into parent `.grad` buffers.
 
-Local rules for the ops used most in a transformer:
+Local rules for the operations used most in a transformer:
 
-| Op | Forward | Backward |
+| Operation | Forward | Backward |
 |----|---------|----------|
 | Add | $c = a + b$ | $\dot a = \dot c$, $\dot b = \dot c$ |
 | Sub | $c = a - b$ | $\dot a = \dot c$, $\dot b = -\dot c$ |
@@ -32,7 +32,7 @@ Local rules for the ops used most in a transformer:
 | ReLU | $y = \max(x,0)$ | $\dot x = \dot y \cdot 1_{x>0}$ |
 | GELU | $y = \mathrm{GELU}(x)$ | closed form of the tanh approximation |
 
-Elementwise ops broadcast operands to a common output shape before applying the rule. Gradients are accumulated back into each parent with the reverse broadcast.
+Elementwise operations broadcast operands to a common output shape before applying the rule. Gradients are accumulated back into each parent with the reverse broadcast.
 
 Dot notation $\dot a$ means $\frac{\partial L}{\partial a}$, the upstream gradient flowing into $a$.
 
@@ -43,7 +43,7 @@ Dot notation $\dot a$ means $\frac{\partial L}{\partial a}$, the upstream gradie
 | Field | Role |
 |-------|------|
 | `parents` | Upstream tensors that produced this node |
-| `operation` | Debug name of the creating op |
+| `operation` | Debug name of the creating operation |
 | `gradientFunction` | Local reverse mode rule (closure) |
 | `grad` | Accumulator for $\partial L / \partial(\text{this tensor})$ |
 

@@ -34,7 +34,7 @@ Using log-sum-exp avoids an explicit `Softmax` layer and stays numerically stabl
 
 ---
 
-## **`MSELoss`**
+## **The `MSELoss` Class**
 
 Mean squared error: `mean((prediction - target)^2)`.
 
@@ -52,7 +52,7 @@ public class MSELoss extends Module {
 
 ---
 
-## **`BCEWithLogitsLoss`**
+## **The `BCEWithLogitsLoss` Class**
 
 Binary cross entropy on raw logits. Uses the stable rewrite above so large positive or negative logits do not overflow.
 
@@ -79,7 +79,7 @@ Explanation:
 
 ---
 
-## **`CrossEntropyLoss`**
+## **The `CrossEntropyLoss` Class**
 
 Multi-class cross entropy from logits. `logits` has shape $(N, C)$ or $(B, T, V)$; `targetIndex` has integer class labels.
 

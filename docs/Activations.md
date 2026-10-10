@@ -1,6 +1,6 @@
 # **Activations**
 
-Elementwise nonlinearities and softmax over a chosen axis. Each module delegates to the matching `Tensor` op.
+Elementwise nonlinearities and softmax over a chosen axis. Each module delegates to the matching `Tensor` operation.
 
 > *`src/ReLU.java` · `src/Tanh.java` · `src/Sigmoid.java` · `src/GELU.java` · `src/Softmax.java`*
 
@@ -34,6 +34,8 @@ GELU uses the Gaussian CDF. Softmax subtracts a max for stability, then `exp` / 
 
 ## **Modules**
 
+### **`ReLU`**
+
 ```java
 public class ReLU extends Module {
     @Override
@@ -43,6 +45,30 @@ public class ReLU extends Module {
 }
 ```
 
+### **`Tanh`**
+
+```java
+public class Tanh extends Module {
+    @Override
+    public Tensor forward(Tensor input) {
+        return input.tanh();
+    }
+}
+```
+
+### **`Sigmoid`**
+
+```java
+public class Sigmoid extends Module {
+    @Override
+    public Tensor forward(Tensor input) {
+        return input.sigmoid();
+    }
+}
+```
+
+### **`GELU`**
+
 ```java
 public class GELU extends Module {
     @Override
@@ -51,6 +77,8 @@ public class GELU extends Module {
     }
 }
 ```
+
+### **`Softmax`**
 
 ```java
 public class Softmax extends Module {

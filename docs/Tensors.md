@@ -1,6 +1,6 @@
 # **Tensors**
 
-Represent data as a differentiable array: values now, gradients later. A `Tensor` wraps a `double[]` plus a `shape` and records how it was created so later ops can attach reverse mode rules.
+Represent data as a differentiable array: values now, gradients later. A `Tensor` wraps a `double[]` plus a `shape` and records how it was created so later operations can attach reverse mode rules.
 
 > *`src/Tensor.java`*
 
@@ -69,7 +69,7 @@ Explanation:
 
 1. Payload and `shape` are copied so later in-place optimizer steps do not alias constructor arguments.
 2. `requiresGrad` is sticky: if any parent needs a gradient, the output does too.
-3. `gradientFunction` starts as a no-op; each op replaces it with a local reverse rule.
+3. `gradientFunction` starts as a no operation; each operation replaces it with a local reverse rule.
 
 Also available:
 
@@ -121,7 +121,7 @@ public Tensor(double[] vector, boolean requiresGrad) {
 
 ---
 
-## **Utility Functions**
+## **Helper Functions**
 
 ### **`product()`**
 
@@ -169,7 +169,7 @@ public static double norm(double[] values)
 
 ## **Arithmetic**
 
-Elementwise ops broadcast like NumPy. `matmul` covers 2D, batched 3D, and 4D attention shapes.
+Elementwise operations broadcast like NumPy. `matmul` covers 2D, batched 3D, and 4D attention shapes.
 
 ```java
 public Tensor add(Tensor other)
