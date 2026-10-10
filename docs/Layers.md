@@ -83,12 +83,12 @@ public class Linear extends Module {
 ## **Check**
 
 ```java
-MultiHeadAttention attention = new MultiHeadAttention(8, 4, new Random(0));
+FeedForward feedForward = new FeedForward(8, new Random(0));
 Tensor hidden = Tensor.ones(new int[] {2, 4, 8}, true);
-Tensor mixed = attention.forward(hidden);
-Tensor loss = mixed.mean();
+Tensor output = feedForward.forward(hidden);
+Tensor loss = output.mean();
 loss.backward();
-new Adam(attention.parameters(), 0.1).step();
+new Adam(feedForward.parameters(), 0.1).step();
 ```
 
-`mixed.shape` is `{8, 8}`. After `step()`, the projection weights move.
+`output.shape` is `{2, 4, 8}`. After `step()`, the expand and project weights move.
