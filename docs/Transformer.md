@@ -1,8 +1,8 @@
 # **Transformer**
 
-Stack a pre-norm attention residual with a positionwise feedforward residual. `FeedForward` is the channel mixer; `TransformerBlock` is one full decoder block.
+Stack embeddings, pre-norm blocks, and a vocabulary head into a decoder only language model.
 
-> *`src/FeedForward.java` · `src/TransformerBlock.java`*
+> *`src/FeedForward.java` · `src/TransformerBlock.java` · `src/Transformer.java`*
 
 ---
 
@@ -20,7 +20,13 @@ $$
 \mathrm{FeedForward}(z) = W_2\,\mathrm{GELU}(W_1 z + b_1) + b_2
 $$
 
-The feedforward hidden width is $4C$. Tokens stay independent inside the feedforward network; mixing across positions is left to attention.
+Token and position embeddings:
+
+$$
+x_t = E_{\mathrm{tok}}[w_t] + E_{\mathrm{pos}}[t]
+$$
+
+The language head is a `Linear` from $C$ to $V$. The feedforward hidden width is $4C$.
 
 ---
 
@@ -78,12 +84,40 @@ Explanation:
 
 ---
 
+## **The `Transformer` Class**
+
+```java
+public Tensor forward(int[][] tokens) {
+    int batch = tokens.length;
+    int sequence = tokens[0].length;
+    int[][] positions = new int[batch][sequence];
+    for (int batchIndex = 0; batchIndex < batch; batchIndex++) {
+        for (int time = 0; time < sequence; time++) {
+            positions[batchIndex][time] = time;
+        }
+    }
+
+    Tensor hidden = tokenEmbedding.forward(tokens).add(positionEmbedding.forward(positions));
+    for (TransformerBlock block : blocks) {
+        hidden = block.forward(hidden);
+    }
+
+    Tensor normalized = finalNorm.forward(hidden);
+    int channels = normalized.shape[2];
+    int vocabularySize = languageHead.weight.shape[1];
+
+    return languageHead.forward(normalized.reshape(batch * sequence, channels)).reshape(batch, sequence, vocabularySize);
+}
+```
+
+---
+
 ## **Check**
 
 ```java
-TransformerBlock block = new TransformerBlock(8, 4, new Random(0));
-Tensor hidden = Tensor.ones(new int[] {2, 4, 8}, false);
-Tensor output = block.forward(hidden);
+Transformer model = new Transformer(8, 32, 4, 2, 8, new Random(0));
+int[][] tokens = new int[][] {{0, 1, 2, 3, 4, 5, 6, 7}, {1, 2, 3, 4, 5, 6, 7, 0}};
+Tensor logits = model.forward(tokens);
 ```
 
-`output.shape` is `{2, 4, 8}`.
+`logits.shape` is `{2, 8, 8}`.

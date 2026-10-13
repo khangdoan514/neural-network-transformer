@@ -123,12 +123,12 @@ public Tensor forward(Tensor input) {
 ## **Check**
 
 ```java
-TransformerBlock block = new TransformerBlock(8, 4, new Random(0));
-Tensor hidden = Tensor.ones(new int[] {2, 4, 8}, true);
-Tensor output = block.forward(hidden);
-Tensor loss = output.mean();
+Transformer model = new Transformer(8, 32, 4, 2, 8, new Random(0));
+int[][] tokens = new int[][] {{0, 1, 2, 3, 4, 5, 6, 7}, {1, 2, 3, 4, 5, 6, 7, 0}};
+Tensor logits = model.forward(tokens);
+Tensor loss = logits.mean();
 loss.backward();
-new Adam(block.parameters(), 0.1).step();
+new Adam(model.parameters(), 0.1).step();
 ```
 
-`output.shape` is `{2, 4, 8}`. After `step()`, the block weights move.
+`logits.shape` is `{2, 8, 8}`. After `step()`, the model weights move.
