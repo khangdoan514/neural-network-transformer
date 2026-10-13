@@ -123,12 +123,21 @@ public Tensor forward(Tensor input) {
 ## **Check**
 
 ```java
-Transformer model = new Transformer(8, 32, 4, 2, 8, new Random(0));
-int[][] tokens = new int[][] {{0, 1, 2, 3, 4, 5, 6, 7}, {1, 2, 3, 4, 5, 6, 7, 0}};
-Tensor logits = model.forward(tokens);
-Tensor loss = logits.mean();
-loss.backward();
-new Adam(model.parameters(), 0.1).step();
+int[][] inputs = new int[][] {{0, 1, 2, 3}, {1, 2, 3, 0}};
+int[][] targets = new int[][] {{0, 1, 2, 3}, {1, 2, 3, 0}};
+Transformer model = new Transformer(4, 16, 4, 1, 4, new Random(0));
+Training.TrainingHistory history = Training.trainLanguage(
+    model,
+    new CrossEntropyLoss(),
+    new Adam(model.parameters(), 0.05),
+    inputs,
+    targets,
+    5,
+    2,
+    false,
+    1,
+    new Random(0)
+);
 ```
 
-`logits.shape` is `{2, 8, 8}`. After `step()`, the model weights move.
+`history.loss` and `history.metric` each have one entry per epoch.
