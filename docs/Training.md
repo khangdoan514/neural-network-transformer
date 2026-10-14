@@ -112,17 +112,16 @@ Explanation:
 ## **Check**
 
 ```java
-int[][] inputs = new int[][] {{0, 1, 2, 3}, {1, 2, 3, 0}, {2, 3, 0, 1}, {3, 0, 1, 2}};
-int[][] targets = new int[][] {{0, 1, 2, 3}, {1, 2, 3, 0}, {2, 3, 0, 1}, {3, 0, 1, 2}};
+int[][][] data = Data.makeCopy(48, 4, 4, 0);
 Transformer model = new Transformer(4, 16, 4, 1, 4, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
     new CrossEntropyLoss(),
     new Adam(model.parameters(), 0.05),
-    inputs,
-    targets,
-    20,
-    2,
+    data[0],
+    data[1],
+    40,
+    16,
     false,
     10,
     new Random(0)
