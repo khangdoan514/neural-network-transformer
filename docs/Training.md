@@ -112,7 +112,7 @@ Explanation:
 ## **Check**
 
 ```java
-int[][][] data = Data.makeCopy(64, 8, 8, 0);
+int[][][] data = Data.makeShift(64, 8, 8, 0);
 Transformer model = new Transformer(8, 32, 4, 2, 8, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
@@ -128,4 +128,4 @@ Training.TrainingHistory history = Training.trainLanguage(
 );
 ```
 
-Final metric should rise toward the copy task target and final loss should fall below the first epoch.
+Final loss should fall below the first epoch on the shift task.
