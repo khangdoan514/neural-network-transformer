@@ -112,15 +112,15 @@ Explanation:
 ## **Check**
 
 ```java
-int[][][] data = Data.makeCopy(48, 4, 4, 0);
-Transformer model = new Transformer(4, 16, 4, 1, 4, new Random(0));
+int[][][] data = Data.makeCopy(64, 8, 8, 0);
+Transformer model = new Transformer(8, 32, 4, 2, 8, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
     new CrossEntropyLoss(),
-    new Adam(model.parameters(), 0.05),
+    new Adam(model.parameters(), 0.03),
     data[0],
     data[1],
-    40,
+    80,
     16,
     false,
     10,
@@ -128,4 +128,4 @@ Training.TrainingHistory history = Training.trainLanguage(
 );
 ```
 
-Final metric should rise and final loss should fall below the first epoch.
+Final metric should rise toward the copy task target and final loss should fall below the first epoch.
