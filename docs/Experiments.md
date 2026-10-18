@@ -2,7 +2,7 @@
 
 Toy datasets and demos that prove the transformer stack works end to end. Data helpers live in `src/Data.java`; runnable scripts live under `examples/`.
 
-> *`src/Data.java` · `examples/TrainCopy.java` · `examples/TrainShift.java`*
+> *`src/Data.java` · `examples/TrainCopy.java` · `examples/TrainShift.java` · `examples/TrainTinyText.java`*
 
 ---
 
@@ -52,6 +52,35 @@ public static int[][][] makeShift(int sampleCount, int sequenceLength, int vocab
 }
 ```
 
+### **`makeTinyText()`**
+
+Character level windows over a short English string (`a` to `z` plus space). Targets are the next character. Vocabulary size is $27$.
+
+```java
+public static int[][][] makeTinyText(int sampleCount, int sequenceLength, int seed) {
+    String text = "the cat sat on the mat the dog sat on the log the cat sat";
+    int vocabularySize = 27;
+    Random randomGenerator = new Random(seed);
+    int[] encoded = new int[text.length()];
+    for (int index = 0; index < text.length(); index++) {
+        char character = text.charAt(index);
+        encoded[index] = character == ' ' ? 26 : character - 'a';
+    }
+
+    int[][] inputs = new int[sampleCount][sequenceLength];
+    int[][] targets = new int[sampleCount][sequenceLength];
+    for (int sample = 0; sample < sampleCount; sample++) {
+        int start = randomGenerator.nextInt(encoded.length - sequenceLength - 1);
+        for (int time = 0; time < sequenceLength; time++) {
+            inputs[sample][time] = encoded[start + time];
+            targets[sample][time] = encoded[start + time + 1];
+        }
+    }
+
+    return new int[][][] {inputs, targets, new int[][] {{vocabularySize}}};
+}
+```
+
 ---
 
 ## **Demos**
@@ -60,16 +89,18 @@ public static int[][][] makeShift(int sampleCount, int sequenceLength, int vocab
 |--------|------|------|--------|
 | `examples/TrainCopy.java` | copy tokens | `CrossEntropyLoss` | accuracy ≥ 0.70 |
 | `examples/TrainShift.java` | next token (random) | `CrossEntropyLoss` | loss decreases |
+| `examples/TrainTinyText.java` | tiny character language model | `CrossEntropyLoss` | loss decreases |
 
 ```bash
 mvn -q compile
 java -cp target/classes examples.TrainCopy
 java -cp target/classes examples.TrainShift
+java -cp target/classes examples.TrainTinyText
 ```
 
 ```java
-int[][][] data = Data.makeShift(64, 8, 8, 0);
-Transformer model = new Transformer(8, 32, 4, 2, 8, new Random(0));
+int[][][] data = Data.makeTinyText(64, 12, 0);
+Transformer model = new Transformer(27, 32, 4, 2, 12, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
     new CrossEntropyLoss(),
@@ -89,8 +120,8 @@ Training.TrainingHistory history = Training.trainLanguage(
 ## **Check**
 
 ```java
-int[][][] data = Data.makeShift(48, 4, 4, 0);
-Transformer model = new Transformer(4, 16, 4, 1, 4, new Random(0));
+int[][][] data = Data.makeTinyText(48, 8, 0);
+Transformer model = new Transformer(27, 16, 4, 1, 8, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
     new CrossEntropyLoss(),

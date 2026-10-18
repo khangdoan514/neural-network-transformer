@@ -112,8 +112,8 @@ Explanation:
 ## **Check**
 
 ```java
-int[][][] data = Data.makeShift(64, 8, 8, 0);
-Transformer model = new Transformer(8, 32, 4, 2, 8, new Random(0));
+int[][][] data = Data.makeTinyText(64, 12, 0);
+Transformer model = new Transformer(27, 32, 4, 2, 12, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
     new CrossEntropyLoss(),
@@ -128,4 +128,4 @@ Training.TrainingHistory history = Training.trainLanguage(
 );
 ```
 
-Final loss should fall below the first epoch on the shift task.
+Final loss should fall below the first epoch on the tiny text task.

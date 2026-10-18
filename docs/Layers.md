@@ -123,8 +123,8 @@ public Tensor forward(Tensor input) {
 ## **Check**
 
 ```java
-int[][][] data = Data.makeShift(16, 4, 4, 0);
-Transformer model = new Transformer(4, 16, 4, 1, 4, new Random(0));
+int[][][] data = Data.makeTinyText(16, 8, 0);
+Transformer model = new Transformer(27, 16, 4, 1, 8, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
     new CrossEntropyLoss(),
