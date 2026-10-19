@@ -1,8 +1,8 @@
 # **Layers**
 
-Parameterize the affine map $y = xW + b$. A `Module` owns learnable `Tensor` parameters; `Linear` is the first layer that uses them. `Embedding` and `LayerNorm` are the extra building blocks a transformer needs.
+Parameterize the affine map $y = xW + b$. A `Module` owns learnable `Tensor` parameters; `Linear` is the first layer that uses them. `Embedding` and `LayerNorm` are the extra building blocks a transformer needs. `Sequential` stacks modules for the tabular `train()` path.
 
-> *`src/Module.java` · `src/Linear.java` · `src/Embedding.java` · `src/LayerNorm.java`*
+> *`src/Module.java` · `src/Linear.java` · `src/Embedding.java` · `src/LayerNorm.java` · `src/Sequential.java`*
 
 ---
 
@@ -120,11 +120,57 @@ public Tensor forward(Tensor input) {
 
 ---
 
+## **The `Sequential` Class**
+
+Chains modules left to right. Overrides `parameters()` so nested `Linear` weights are visible to `SGD` / `Adam`.
+
+```java
+public class Sequential extends Module {
+    public List<Module> layers = new ArrayList<>();
+
+    public Sequential(Module... modules) {
+        layers.addAll(List.of(modules));
+    }
+
+    @Override
+    public Tensor forward(Tensor input) {
+        Tensor output = input;
+        for (Module layer : layers) {
+            output = layer.forward(output);
+        }
+
+        return output;
+    }
+
+    @Override
+    public List<Tensor> parameters() {
+        List<Tensor> parameters = new ArrayList<>();
+        for (Module layer : layers) {
+            parameters.addAll(layer.parameters());
+        }
+
+        return parameters;
+    }
+}
+```
+
+Explanation:
+
+1. `forward` is a left fold: each layer's output is the next layer's input.
+2. `parameters()` walks `layers` so nested weights reach the optimizer.
+3. Activations have no learnable tensors; they still participate in the graph.
+
+---
+
 ## **Check**
 
 ```java
 double[][][] data = Data.makeXor(8, 0.05, 0);
-Linear model = new Linear(2, 1);
+Sequential model = new Sequential(
+    new Linear(2, 16),
+    new ReLU(),
+    new Linear(16, 1)
+);
 Training.TrainingHistory history = Training.train(
     model,
     new BCEWithLogitsLoss(),

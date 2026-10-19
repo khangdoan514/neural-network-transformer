@@ -148,16 +148,22 @@ Optional `metricFunction` receives detached predictions and batch targets.
 ## **Check**
 
 ```java
-double[][][] data = Data.makeXor(20, 0.05, 0);
-Linear model = new Linear(2, 1);
+double[][][] data = Data.makeXor(40, 0.05, 0);
+Sequential model = new Sequential(
+    new Linear(2, 16),
+    new ReLU(),
+    new Linear(16, 16),
+    new ReLU(),
+    new Linear(16, 1)
+);
 Training.TrainingHistory history = Training.train(
     model,
     new BCEWithLogitsLoss(),
-    new Adam(model.parameters(), 0.1),
+    new Adam(model.parameters(), 0.05),
     data[0],
     data[1],
-    40,
-    16,
+    120,
+    32,
     Training::accuracyBinary,
     new Random(0),
     false,
@@ -165,5 +171,5 @@ Training.TrainingHistory history = Training.train(
 );
 ```
 
-`history.loss` and `history.metric` each have one entry per epoch.
+Final metric should rise and final loss should fall below the first epoch.
 
