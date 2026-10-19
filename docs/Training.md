@@ -22,6 +22,26 @@ An epoch is one full pass over the shuffled dataset. With `batchSize = null`, th
 
 ## **Metrics**
 
+### **`accuracyBinary()`**
+
+```java
+public static double accuracyBinary(Tensor logits, double[][] target) {
+    int count = 0;
+    int total = logits.data.length;
+    for (int index = 0; index < total; index++) {
+        double prediction = logits.data[index] >= 0.0 ? 1.0 : 0.0;
+        double label = target[index / target[0].length][index % target[0].length];
+        if (prediction == label) {
+            count += 1;
+        }
+    }
+
+    return (double) count / total;
+}
+```
+
+Binary accuracy thresholds logits at $0$.
+
 ### **`accuracyTokens()`**
 
 ```java
@@ -109,23 +129,41 @@ Explanation:
 
 ---
 
+## **`train()`**
+
+Dense tabular loop for `(N, features)` inputs and `double[][]` targets (MSE or BCE).
+
+```java
+optimizer.zeroGrad();
+Tensor prediction = model.forward(new Tensor(batchInputs, false));
+Tensor loss = invokeLoss(lossFunction, prediction, batchTargets);
+loss.backward();
+optimizer.step();
+```
+
+Optional `metricFunction` receives detached predictions and batch targets.
+
+---
+
 ## **Check**
 
 ```java
-int[][][] data = Data.makeTinyText(64, 12, 0);
-Transformer model = new Transformer(27, 32, 4, 2, 12, new Random(0));
-Training.TrainingHistory history = Training.trainLanguage(
+double[][][] data = Data.makeXor(20, 0.05, 0);
+Linear model = new Linear(2, 1);
+Training.TrainingHistory history = Training.train(
     model,
-    new CrossEntropyLoss(),
-    new Adam(model.parameters(), 0.03),
+    new BCEWithLogitsLoss(),
+    new Adam(model.parameters(), 0.1),
     data[0],
     data[1],
-    80,
+    40,
     16,
+    Training::accuracyBinary,
+    new Random(0),
     false,
-    10,
-    new Random(0)
+    10
 );
 ```
 
-Final loss should fall below the first epoch on the tiny text task.
+`history.loss` and `history.metric` each have one entry per epoch.
+

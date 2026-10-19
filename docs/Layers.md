@@ -123,19 +123,20 @@ public Tensor forward(Tensor input) {
 ## **Check**
 
 ```java
-int[][][] data = Data.makeTinyText(16, 8, 0);
-Transformer model = new Transformer(27, 16, 4, 1, 8, new Random(0));
-Training.TrainingHistory history = Training.trainLanguage(
+double[][][] data = Data.makeXor(8, 0.05, 0);
+Linear model = new Linear(2, 1);
+Training.TrainingHistory history = Training.train(
     model,
-    new CrossEntropyLoss(),
-    new Adam(model.parameters(), 0.05),
+    new BCEWithLogitsLoss(),
+    new Adam(model.parameters(), 0.1),
     data[0],
     data[1],
     5,
-    4,
+    8,
+    Training::accuracyBinary,
+    new Random(0),
     false,
-    1,
-    new Random(0)
+    1
 );
 ```
 

@@ -81,6 +81,32 @@ public static int[][][] makeTinyText(int sampleCount, int sequenceLength, int se
 }
 ```
 
+### **`makeXor()`**
+
+Dense XOR pairs for the tabular `train()` path and learning tests.
+
+```java
+public static double[][][] makeXor(int samplesPerClass, double noise, int seed) {
+    Random randomGenerator = new Random(seed);
+    double[][] centers = {{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
+    double[] centerLabels = {0.0, 1.0, 1.0, 0.0};
+    int total = samplesPerClass * 4;
+    double[][] inputs = new double[total][2];
+    double[][] targets = new double[total][1];
+    int write = 0;
+    for (int centerIndex = 0; centerIndex < 4; centerIndex++) {
+        for (int sample = 0; sample < samplesPerClass; sample++) {
+            inputs[write][0] = centers[centerIndex][0] + noise * randomGenerator.nextGaussian();
+            inputs[write][1] = centers[centerIndex][1] + noise * randomGenerator.nextGaussian();
+            targets[write][0] = centerLabels[centerIndex];
+            write += 1;
+        }
+    }
+
+    return shuffleDense(inputs, targets, randomGenerator);
+}
+```
+
 ---
 
 ## **Demos**
