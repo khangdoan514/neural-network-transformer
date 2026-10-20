@@ -165,25 +165,8 @@ Explanation:
 ## **Check**
 
 ```java
-double[][][] data = Data.makeXor(8, 0.05, 0);
-Sequential model = new Sequential(
-    new Linear(2, 16),
-    new ReLU(),
-    new Linear(16, 1)
-);
-Training.TrainingHistory history = Training.train(
-    model,
-    new BCEWithLogitsLoss(),
-    new Adam(model.parameters(), 0.1),
-    data[0],
-    data[1],
-    5,
-    8,
-    Training::accuracyBinary,
-    new Random(0),
-    false,
-    1
-);
+Sequential model = new Sequential(new Linear(2, 5), new ReLU(), new Linear(5, 1));
+Tensor output = model.forward(new Tensor(new double[][] {{0.1, -0.2}, {0.3, 0.4}}));
 ```
 
-`history.loss` and `history.metric` each have one entry per epoch.
+`output.shape` is `{2, 1}` and `model.parameters().size()` is `4`. `tests/TestModules.java` also gradchecks this stack.

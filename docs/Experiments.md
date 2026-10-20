@@ -146,8 +146,8 @@ Training.TrainingHistory history = Training.trainLanguage(
 ## **Check**
 
 ```java
-int[][][] data = Data.makeTinyText(48, 8, 0);
-Transformer model = new Transformer(27, 16, 4, 1, 8, new Random(0));
+int[][][] data = Data.makeCopy(48, 4, 4, 0);
+Transformer model = new Transformer(4, 16, 4, 1, 4, new Random(0));
 Training.TrainingHistory history = Training.trainLanguage(
     model,
     new CrossEntropyLoss(),
@@ -162,4 +162,4 @@ Training.TrainingHistory history = Training.trainLanguage(
 );
 ```
 
-Final loss should fall below the first epoch.
+`tests/TestLearning.java` checks that copy accuracy reaches at least $0.70$ and that loss falls below the first epoch.

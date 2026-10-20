@@ -171,5 +171,5 @@ Training.TrainingHistory history = Training.train(
 );
 ```
 
-Final metric should rise and final loss should fall below the first epoch.
+`tests/TestLearning.java` checks that the final metric is at least $0.90$ and the final loss is below the first epoch. `tests/TestModules.java` covers layer shapes, activation modules, `Sequential`, and optimizer smoke checks.
 
