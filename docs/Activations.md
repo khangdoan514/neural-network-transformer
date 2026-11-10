@@ -2,7 +2,7 @@
 
 Elementwise nonlinearities and softmax over a chosen axis. Each module delegates to the matching `Tensor` operation.
 
-> *`src/ReLU.java` · `src/Tanh.java` · `src/Sigmoid.java` · `src/GELU.java` · `src/Softmax.java`*
+> *`src/ReLU.java`, `src/Tanh.java`, `src/Sigmoid.java`, `src/GELU.java`, `src/Softmax.java`*
 
 ---
 
@@ -28,7 +28,7 @@ $$
 \mathrm{softmax}(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}}
 $$
 
-GELU uses the Gaussian CDF. Softmax subtracts a max for stability, then `exp` / `sum`.
+The ReLU subgradient at zero is taken to be zero. GELU uses the Gaussian CDF. Softmax subtracts a max for stability, then `exp` / `sum`. Sigmoid squashes to $(0, 1)$. Tanh squashes to $(-1, 1)$.
 
 ---
 

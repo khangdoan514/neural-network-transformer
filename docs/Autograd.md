@@ -28,8 +28,11 @@ Local rules for the operations used most in a transformer:
 | Sub | $c = a - b$ | $\dot a = \dot c$, $\dot b = -\dot c$ |
 | Mul | $c = a \cdot b$ | $\dot a = \dot c \cdot b$, $\dot b = \dot c \cdot a$ |
 | Div | $c = a / b$ | $\dot a = \dot c / b$, $\dot b = -\dot c \cdot a / b^{2}$ |
+| Pow | $c = a^{n}$ | $\dot a = \dot c \cdot n a^{n-1}$ |
 | Matmul | $C = AB$ | $\dot A = \dot C B^{\top}$, $\dot B = A^{\top}\dot C$ |
-| ReLU | $y = \max(x,0)$ | $\dot x = \dot y \cdot 1_{x>0}$ |
+| ReLU | $y = \max(x, 0)$ | $\dot x = \dot y \cdot 1_{x>0}$ |
+| Tanh | $y = \tanh x$ | $\dot x = \dot y \, (1 - y^{2})$ |
+| Sigmoid | $y = \sigma(x)$ | $\dot x = \dot y \, y(1-y)$ |
 | GELU | $y = \mathrm{GELU}(x)$ | closed form of the tanh approximation |
 
 Elementwise operations broadcast operands to a common output shape before applying the rule. Gradients are accumulated back into each parent with the reverse broadcast.
@@ -89,7 +92,7 @@ public void backward(double[] gradient) {
 Explanation:
 
 1. Default seed is $1$ only for a scalar loss.
-2. `build` is a DFS topological sort over `parents`.
+2. `build` is a depth first topological sort over `parents`.
 3. Reverse walk runs each local `gradientFunction`.
 
 ---

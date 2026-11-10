@@ -125,11 +125,11 @@ $$
 | 01 | Tensors and operations | `src/Tensor.java` | [docs/Tensors.md](docs/Tensors.md) |
 | 02 | Autograd / chain rule | `src/Tensor.java` (`backward`) | [docs/Autograd.md](docs/Autograd.md) |
 | 03 | Gradient checking | `src/Gradcheck.java` | [docs/Gradcheck.md](docs/Gradcheck.md) |
-| 04 | Modules, `Linear`, Embedding, LayerNorm | `src/Module.java` · `src/Linear.java` · `src/Embedding.java` · `src/LayerNorm.java` | [docs/Layers.md](docs/Layers.md) |
+| 04 | Modules, `Linear`, Embedding, LayerNorm | `src/Module.java`, `src/Linear.java`, `src/Embedding.java`, `src/LayerNorm.java` | [docs/Layers.md](docs/Layers.md) |
 | 05 | Activations | `ReLU`, `Tanh`, `Sigmoid`, `GELU`, `Softmax` | [docs/Activations.md](docs/Activations.md) |
 | 06 | Losses | `MSELoss`, `BCEWithLogitsLoss`, `CrossEntropyLoss` | [docs/Losses.md](docs/Losses.md) |
 | 07 | Optimizers | `src/SGD.java`, `src/Adam.java` | [docs/Optimizers.md](docs/Optimizers.md) |
-| 08 | Attention and Transformer | `src/MultiHeadAttention.java` · `src/Transformer.java` | [docs/Attention.md](docs/Attention.md), [docs/Transformer.md](docs/Transformer.md) |
+| 08 | Attention and Transformer | `src/MultiHeadAttention.java`, `src/Transformer.java` | [docs/Attention.md](docs/Attention.md), [docs/Transformer.md](docs/Transformer.md) |
 | 09 | Training loop | `src/Training.java` | [docs/Training.md](docs/Training.md) |
 | 10 | Experiments | `examples/` | [docs/Experiments.md](docs/Experiments.md) |
 

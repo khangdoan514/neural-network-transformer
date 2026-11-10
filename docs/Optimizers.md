@@ -2,7 +2,7 @@
 
 Turn $\nabla_\theta L$ into parameter updates. After `loss.backward()`, call `optimizer.step()` to change each parameter in place.
 
-> *`src/Optimizer.java` · `src/SGD.java` · `src/Adam.java`*
+> *`src/Optimizer.java`, `src/SGD.java`, `src/Adam.java`*
 
 ---
 

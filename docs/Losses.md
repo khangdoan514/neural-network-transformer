@@ -2,7 +2,7 @@
 
 Scalar objectives $L(\hat y, y)$ that turn network outputs into something you can call `.backward()` on. Each loss is a `Module` whose `forward` returns a scalar `Tensor`.
 
-> *`src/MSELoss.java` · `src/BCEWithLogitsLoss.java` · `src/CrossEntropyLoss.java`*
+> *`src/MSELoss.java`, `src/BCEWithLogitsLoss.java`, `src/CrossEntropyLoss.java`*
 
 ---
 

@@ -2,7 +2,7 @@
 
 Toy datasets and demos that prove the transformer stack works end to end. Data helpers live in `src/Data.java`; runnable scripts live under `examples/`.
 
-> *`src/Data.java` · `examples/TrainCopy.java` · `examples/TrainShift.java` · `examples/TrainTinyText.java`*
+> *`src/Data.java`, `examples/TrainCopy.java`, `examples/TrainShift.java`, `examples/TrainTinyText.java`*
 
 ---
 

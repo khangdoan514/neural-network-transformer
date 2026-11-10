@@ -2,7 +2,7 @@
 
 Parameterize the affine map $y = xW + b$. A `Module` owns learnable `Tensor` parameters; `Linear` is the first layer that uses them. `Embedding` and `LayerNorm` are the extra building blocks a transformer needs. `Sequential` stacks modules for the tabular `train()` path.
 
-> *`src/Module.java` · `src/Linear.java` · `src/Embedding.java` · `src/LayerNorm.java` · `src/Sequential.java`*
+> *`src/Module.java`, `src/Linear.java`, `src/Embedding.java`, `src/LayerNorm.java`, `src/Sequential.java`*
 
 ---
 
@@ -36,7 +36,7 @@ $$
 |-------|------|
 | `parameters()` | Collect every `Tensor` with `requiresGrad` on this module |
 | `zeroGrad()` | Zero `.grad` on all parameters |
-| `trainMode()` / `evalMode()` | Toggle training flag |
+| `trainMode()` / `evalMode()` | Toggle the training flag |
 | `forward()` | Define the forward pass |
 | `apply()` | Calls `forward()` |
 

@@ -2,7 +2,7 @@
 
 Stack embeddings, pre-norm blocks, and a vocabulary head into a decoder only language model.
 
-> *`src/FeedForward.java` · `src/TransformerBlock.java` · `src/Transformer.java`*
+> *`src/FeedForward.java`, `src/TransformerBlock.java`, `src/Transformer.java`*
 
 ---
 

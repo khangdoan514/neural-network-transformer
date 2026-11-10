@@ -67,7 +67,7 @@ public final class Tensor {
 
 Explanation:
 
-1. Payload and `shape` are copied so later in-place optimizer steps do not alias constructor arguments.
+1. Payload and `shape` are copied so later in place optimizer steps do not alias constructor arguments.
 2. `requiresGrad` is sticky: if any parent needs a gradient, the output does too.
 3. `gradientFunction` starts as a no operation; each operation replaces it with a local reverse rule.
 
